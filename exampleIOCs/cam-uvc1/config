@@ -1,0 +1,4 @@
+NAME=cam-uvc1
+PORT=4000
+USER=softioc
+HOST=xf10idd-ioc3

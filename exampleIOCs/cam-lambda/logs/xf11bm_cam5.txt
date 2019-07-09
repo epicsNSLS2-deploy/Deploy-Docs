@@ -1,0 +1,455 @@
+softioc@xf11bm-ioc1:~/cam05$ ./st.cmd 
+#!/epics/prod/Deb7/R3-4/areaDetector/ADProsilica/iocs/prosilicaIOC/bin/linux-x86_64/prosilicaApp st.cmd
+errlogInit(20000)
+< unique.cmd
+# ###############################
+# Specific to camera		#
+# Date:   2018-08-22		#
+# Author: K. Gofron		#	
+# ###############################
+# ######################################################################################
+# NELEMENTS = 3*(X x Y)=1360x1024x3=4177920, which is the number of pixels in RGB images from the GC-1380C color camera. 
+#
+# CAMERA		  (X x Y)     =	NELMT;	 3*NELMT;     MAX_ARRAY_16b;  MAX_ARRAY_24b
+#Prosilica GC1290/GT1290: 1280 * 960  = 1228800; 3686400      2457600 Bytes   3686400
+#Prosilica Mako G-125B:   1292 * 964  = 1245488; 3736464      2490976 Bytes   3736464
+#Prosilica GX1920:        1936 * 1456 = 2818816; 8456448      5637632 Bytes   8456448
+#Prosilica GC-1380:       1360 * 1024 = 1392640; 4177920      2785280 Bytes   4177920
+# #######################################################################################
+#10.10.1.85: 00-0f-31-02-18-04	02-2623A-07000  GT3300C      137220	OnAxis  xf10idd-cam5
+epicsEnvSet("SUPPORT_DIR", "/epics/prod/Deb7/R3-4")
+epicsEnvSet("ENGINEER",                 "K. Gofron X5283")
+epicsEnvSet("LOCATION",                 "11BM")
+epicsEnvSet("PORT",                     "CAM")
+epicsEnvSet("EPICS_CA_AUTO_ADDR_LIST",  "NO")
+epicsEnvSet("EPICS_CA_ADDR_LIST",       "10.11.128.255")
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "6000000")
+epicsEnvSet("CAM-IP",                   "10.11.129.34")
+#epicsEnvSet("UID-NUM",                 "137220")
+epicsEnvSet("PREFIX",                   "XF:11BMB-BI{OnAxis-Cam:1}")
+epicsEnvSet("CTPREFIX",                 "XF:11BMB-BI{OnAxis-Cam:1}")
+epicsEnvSet("HOSTNAME",                 "xf11bm-ioc1")
+epicsEnvSet("IOCNAME",                  "cam05")
+epicsEnvSet("QSIZE",                    "20")
+epicsEnvSet("NCHANS",                   "2048")
+epicsEnvSet("HIST_SIZE",                "4096")
+epicsEnvSet("XSIZE",                    "1280")
+epicsEnvSet("YSIZE",                    "960")
+epicsEnvSet("NELMT",                    "3686400")
+epicsEnvSet("NDTYPE",                   "Int8")  #'Int8' (8bit B/W, Color) | 'Int16' (16bit B/W)
+epicsEnvSet("NDFTVL",                   "UCHAR") #'UCHAR' (8bit B/W, Color) | 'SHORT' (16bit B/W)
+epicsEnvSet("CBUFFS",                   "500")
+#< envPaths
+< /epics/prod/Deb7/R3-4/envPaths
+# ################################################
+# Specific to EPICS AD distribution, not camera  #
+# Date:   2018-08-22   		     	 	 #
+# Author: K. Gofron				 #	
+# ################################################
+epicsEnvSet("ARCH",	"linux-x86_64")
+epicsEnvSet("IOC",      "iocADProsilica")
+epicsEnvSet("TOP",	"/epics/iocs/cam05")	# defined here not in  unique.cmd
+#epicsEnvSet("SUPPORT", "/epics/prod/Deb7/master")
+epicsEnvSet("SUPPORT", 	"/epics/prod/Deb7/R3-4")
+epicsEnvSet("ASYN", 	   "/epics/prod/Deb7/R3-4/asyn")
+epicsEnvSet("AUTOSAVE",    "/epics/prod/Deb7/R3-4/autosave")
+epicsEnvSet("BUSY", 	   "/epics/prod/Deb7/R3-4/busy")
+epicsEnvSet("CALC", 	   "/epics/prod/Deb7/R3-4/calc")
+epicsEnvSet("SNCSEQ", 	   "/epics/prod/Deb7/R3-4/seq")
+epicsEnvSet("SSCAN", 	   "/epics/prod/Deb7/R3-4/sscan")
+epicsEnvSet("DEVIOCSTATS", "/epics/prod/Deb7/R3-4/iocStats")
+epicsEnvSet("EPICS_BASE",  "/epics/prod/Deb7/R3-4/base")
+epicsEnvSet("AREA_DETECTOR", "/epics/prod/Deb7/R3-4/areaDetector")
+epicsEnvSet("ADSUPPORT",     "/epics/prod/Deb7/R3-4/areaDetector/ADSupport")
+epicsEnvSet("ADCORE", 	     "/epics/prod/Deb7/R3-4/areaDetector/ADCore")
+epicsEnvSet("ADPLUGINBAR",   "/epics/prod/Deb7/R3-4/areaDetector/ADPluginBar")
+epicsEnvSet("ADPLUGINEDGE",   "/epics/prod/Deb7/R3-4/areaDetector/ADPluginEdge")
+epicsEnvSet("EPICS_DB_INCLUDE_PATH", "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db")
+epicsEnvSet("ADPROSILICA",    "/epics/prod/Deb7/R3-4/areaDetector/ADProsilica")
+epicsEnvSet("ADSIMDETECTOR",  "/epics/prod/Deb7/R3-4/areaDetector/ADSimDetector")
+epicsEnvSet("ADLAMBDA",       "/epics/prod/Deb7/R3-4/areaDetector/ADLambda")
+epicsEnvSet("ADPILATUS",      "/epics/prod/Deb7/R3-4/areaDetector/ADPilatus")
+epicsEnvSet("ADMERLIN",       "/epics/prod/Deb7/R3-4/areaDetector/ADMerlin")
+epicsEnvSet("ADEIGER",        "/epics/prod/Deb7/R3-4/areaDetector/ADEiger")
+epicsEnvSet("ADANDOR3",       "/epics/prod/Deb7/R3-4/areaDetector/ADAndor3")
+epicsEnvSet("ADPOINTGREY",    "/epics/prod/Deb7/R3-4/areaDetector/ADPointGrey")
+dbLoadDatabase("/epics/prod/Deb7/R3-4/areaDetector/ADProsilica/iocs/prosilicaIOC/dbd/prosilicaApp.dbd")
+prosilicaApp_registerRecordDeviceDriver(pdbbase)
+Warning: IOC is booting with TOP = "/epics/iocs/cam05"
+          but was built with TOP = "/eApps/epics/support/areaDetector/ADProsilica/iocs/prosilicaIOC"
+# prosilicaConfig(portName,    # The name of the asyn port to be created
+#                 cameraId,    # Unique ID, IP address, or IP name of the camera
+#                 maxBuffers,  # Maximum number of NDArray buffers driver can allocate. 0=unlimited
+#                 maxMemory,   # Maximum memory bytes driver can allocate. 0=unlimited
+#                 priority,    # EPICS thread priority for asyn port driver 0=default
+#                 stackSize,   # EPICS thread stack size for asyn port driver 0=default
+#                 maxPvAPIFrames) # Number of frames to allocate in PvAPI driver. Default=2.
+# The simplest way to determine the uniqueId of a camera is to run the Prosilica GigEViewer application, 
+# select the camera, and press the "i" icon on the bottom of the main window to show the camera information for this camera. 
+# The Unique ID will be displayed on the first line in the information window.
+#prosilicaConfig("$(PORT)", "$(UID-NUM)", 50, 0)
+#prosilicaConfig("$(PORT)", "$(CAM-IP)", -1, -1)
+#prosilicaConfig("$(PORT)", "$(CAM-IP)",  50, 0, 0, 0, 10)
+prosilicaConfig("CAM", "10.11.129.34",  50, 0)
+asynSetTraceIOMask("CAM",0,2)
+#asynSetTraceMask("$(PORT)",0,255)
+#dbLoadRecords("align.db",   "P=$(PREFIX),R=")
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADProsilica/db/prosilica.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=cam1:,PORT=CAM,ADDR=0,TIMEOUT=1")
+# Create a standard arrays plugin, set it to get data from first Prosilica driver.
+NDStdArraysConfigure("Image1", 5, 0, "CAM", 0, 0)
+# Use (TYPE=Int8,FTVL=UCHAR), if you only want to use the Prosilica in 8-bit mode (or color mode). It uses an 8-bit waveform record
+# Use (TYPE=Int16,FTVL=SHORT), if you want to use the Prosilica in 8,12 or 16-bit modes.  
+# NELEMENTS is set large enough for a 1360x1024x3 image size, which is the number of pixels in RGB images from the GC1380C color camera. 
+# NELEMENTS is set large enough for a 1360x1024 image size, which is the number of pixels in B/W images from the GC1380B mono camera.
+# Must be at least as big as the maximum size of your camera images
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDStdArrays.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM,TYPE=Int8,FTVL=UCHAR,NELEMENTS=3686400")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}image1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDStdArrays.template" line 7
+# Load all other plugins using commonPlugins.cmd
+< /epics/prod/Deb7/R3-4/areaDetector/ADCore/iocBoot/commonPlugins.cmd
+# This is an example file for creating plugins
+# It uses the following environment variable macros
+# Many of the parameters defined in this file are also in commonPlugins_settings.req so if autosave is being
+# use the autosave value will replace the value passed to this file.
+# $(PREFIX)      Prefix for all records
+# $(PORT)        The port name for the detector.  In autosave.
+# $(QSIZE)       The queue size for all plugins.  In autosave.
+# $(XSIZE)       The maximum image width; used to set the maximum size for row profiles in the NDPluginStats plugin and 1-D FFT
+#                   profiles in NDPluginFFT.
+# $(YSIZE)       The maximum image height; used to set the maximum size for column profiles in the NDPluginStats plugin
+# $(NCHANS)      The maximum number of time series points in the NDPluginStats, NDPluginROIStats, and NDPluginAttribute plugins
+# $(CBUFFS)      The maximum number of frames buffered in the NDPluginCircularBuff plugin
+# $(MAX_THREADS) The maximum number of threads for plugins which can run in multiple threads. Defaults to 5.
+# Create a netCDF file saving plugin
+NDFileNetCDFConfigure("FileNetCDF1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileNetCDF.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=netCDF1:,PORT=FileNetCDF1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}netCDF1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileNetCDF.template" line 9
+# Create a TIFF file saving plugin
+NDFileTIFFConfigure("FileTIFF1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileTIFF.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=TIFF1:,PORT=FileTIFF1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}TIFF1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileTIFF.template" line 9
+# Create a JPEG file saving plugin
+NDFileJPEGConfigure("FileJPEG1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileJPEG.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=JPEG1:,PORT=FileJPEG1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}JPEG1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileJPEG.template" line 9
+# Create a NeXus file saving plugin
+NDFileNexusConfigure("FileNexus1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileNexus.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Nexus1:,PORT=FileNexus1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Nexus1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileNexus.template" line 6
+# Create an HDF5 file saving plugin
+NDFileHDF5Configure("FileHDF1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileHDF5.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=HDF1:,PORT=FileHDF1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}HDF1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileHDF5.template" line 14
+# Create a Magick file saving plugin
+NDFileMagickConfigure("FileMagick1", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileMagick.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Magick1:,PORT=FileMagick1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Magick1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileMagick.template" line 10
+# Create 4 ROI plugins
+NDROIConfigure("ROI1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDROI.template",       "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROI1:,  PORT=ROI1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}ROI1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDROI.template" line 7
+NDROIConfigure("ROI2", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDROI.template",       "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROI2:,  PORT=ROI2,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}ROI2:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDROI.template" line 7
+NDROIConfigure("ROI3", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDROI.template",       "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROI3:,  PORT=ROI3,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}ROI3:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDROI.template" line 7
+NDROIConfigure("ROI4", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDROI.template",       "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROI4:,  PORT=ROI4,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}ROI4:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDROI.template" line 7
+# Create 8 ROIStat plugins
+NDROIStatConfigure("ROISTAT1", 20, 0, "CAM", 0, 8, 0, 0, 0, 0, 5)
+dbLoadRecords("NDROIStat.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:  ,PORT=ROISTAT1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM,NCHANS=2048")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}ROIStat1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDROIStat.template" line 21
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:1:,PORT=ROISTAT1,ADDR=0,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:2:,PORT=ROISTAT1,ADDR=1,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:3:,PORT=ROISTAT1,ADDR=2,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:4:,PORT=ROISTAT1,ADDR=3,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:5:,PORT=ROISTAT1,ADDR=4,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:6:,PORT=ROISTAT1,ADDR=5,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:7:,PORT=ROISTAT1,ADDR=6,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDROIStatN.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=ROIStat1:8:,PORT=ROISTAT1,ADDR=7,TIMEOUT=1,NCHANS=2048")
+# Create a processing plugin
+NDProcessConfigure("PROC1", 20, 0, "CAM", 0, 0, 0)
+dbLoadRecords("NDProcess.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Proc1:,  PORT=PROC1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Proc1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDProcess.template" line 7
+# Create a TIFF file plugin to read dark and flatfield images into the processing plugin
+NDFileTIFFConfigure("PROC1TIFF", 20, 0, "CAM", 0)
+dbLoadRecords("NDFileTIFF.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Proc1:TIFF:,PORT=PROC1TIFF,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Proc1:TIFF:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFileTIFF.template" line 9
+# Create a scatter plugin
+NDScatterConfigure("SCATTER1", 20, 0, "CAM", 0, 0, 0)
+dbLoadRecords("NDScatter.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Scatter1:,  PORT=SCATTER1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Scatter1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDScatter.template" line 7
+# Create a gather plugin with 8 ports
+NDGatherConfigure("GATHER1", 20, 0, 8, 0, 0)
+dbLoadRecords("NDGather.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, PORT=GATHER1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Gather1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDGather.template" line 7
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=1, PORT=GATHER1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=2, PORT=GATHER1,ADDR=1,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=3, PORT=GATHER1,ADDR=2,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=4, PORT=GATHER1,ADDR=3,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=5, PORT=GATHER1,ADDR=4,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=6, PORT=GATHER1,ADDR=5,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=7, PORT=GATHER1,ADDR=6,TIMEOUT=1,NDARRAY_PORT=CAM")
+dbLoadRecords("NDGatherN.template",   "P=XF:11BMB-BI{OnAxis-Cam:1},R=Gather1:, N=8, PORT=GATHER1,ADDR=7,TIMEOUT=1,NDARRAY_PORT=CAM")
+# Create 5 statistics plugins
+NDStatsConfigure("STATS1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDStats.template",     "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats1:,  PORT=STATS1,ADDR=0,TIMEOUT=1,HIST_SIZE=256,XSIZE=1280,YSIZE=960,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDStats.template" line 4
+NDTimeSeriesConfigure("STATS1_TS", 20, 0, "STATS1", 1, 23)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats1:TS:, PORT=STATS1_TS,ADDR=0,TIMEOUT=1,NDARRAY_PORT=STATS1,NDARRAY_ADDR=1,NCHANS=2048,ENABLED=1")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats1:TS:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template" line 17
+NDStatsConfigure("STATS2", 20, 0, "ROI1",    0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDStats.template",     "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats2:,  PORT=STATS2,ADDR=0,TIMEOUT=1,HIST_SIZE=256,XSIZE=1280,YSIZE=960,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats2:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDStats.template" line 4
+NDTimeSeriesConfigure("STATS2_TS", 20, 0, "STATS2", 1, 23)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats2:TS:, PORT=STATS2_TS,ADDR=0,TIMEOUT=1,NDARRAY_PORT=STATS2,NDARRAY_ADDR=1,NCHANS=2048,ENABLED=1")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats2:TS:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template" line 17
+NDStatsConfigure("STATS3", 20, 0, "ROI2",    0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDStats.template",     "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats3:,  PORT=STATS3,ADDR=0,TIMEOUT=1,HIST_SIZE=256,XSIZE=1280,YSIZE=960,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats3:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDStats.template" line 4
+NDTimeSeriesConfigure("STATS3_TS", 20, 0, "STATS3", 1, 23)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats3:TS:, PORT=STATS3_TS,ADDR=0,TIMEOUT=1,NDARRAY_PORT=STATS3,NDARRAY_ADDR=1,NCHANS=2048,ENABLED=1")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats3:TS:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template" line 17
+NDStatsConfigure("STATS4", 20, 0, "ROI3",    0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDStats.template",     "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats4:,  PORT=STATS4,ADDR=0,TIMEOUT=1,HIST_SIZE=256,XSIZE=1280,YSIZE=960,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats4:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDStats.template" line 4
+NDTimeSeriesConfigure("STATS4_TS", 20, 0, "STATS4", 1, 23)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats4:TS:, PORT=STATS4_TS,ADDR=0,TIMEOUT=1,NDARRAY_PORT=STATS4,NDARRAY_ADDR=1,NCHANS=2048,ENABLED=1")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats4:TS:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template" line 17
+NDStatsConfigure("STATS5", 20, 0, "ROI4",    0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDStats.template",     "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats5:,  PORT=STATS5,ADDR=0,TIMEOUT=1,HIST_SIZE=256,XSIZE=1280,YSIZE=960,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats5:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDStats.template" line 4
+NDTimeSeriesConfigure("STATS5_TS", 20, 0, "STATS5", 1, 23)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Stats5:TS:, PORT=STATS5_TS,ADDR=0,TIMEOUT=1,NDARRAY_PORT=STATS5,NDARRAY_ADDR=1,NCHANS=2048,ENABLED=1")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Stats5:TS:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db/NDTimeSeries.template" line 17
+# Create a transform plugin
+NDTransformConfigure("TRANS1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDTransform.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Trans1:,  PORT=TRANS1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Trans1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDTransform.template" line 4
+# Create an overlay plugin with 8 overlays
+NDOverlayConfigure("OVER1", 20, 0, "CAM", 0, 8, 0, 0, 0, 0, 5)
+dbLoadRecords("NDOverlay.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:, PORT=OVER1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Over1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDOverlay.template" line 7
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:1:,NAME=ROI1,   SHAPE=1,O=Over1:,XPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI1:MinX_RBV,YPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI1:MinY_RBV,XSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI1:SizeX_RBV,YSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI1:SizeY_RBV,PORT=OVER1,ADDR=0,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:2:,NAME=ROI2,   SHAPE=1,O=Over1:,XPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI2:MinX_RBV,YPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI2:MinY_RBV,XSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI2:SizeX_RBV,YSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI2:SizeY_RBV,PORT=OVER1,ADDR=1,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:3:,NAME=ROI3,   SHAPE=1,O=Over1:,XPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI3:MinX_RBV,YPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI3:MinY_RBV,XSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI3:SizeX_RBV,YSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI3:SizeY_RBV,PORT=OVER1,ADDR=2,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:4:,NAME=ROI4,   SHAPE=1,O=Over1:,XPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI4:MinX_RBV,YPOS=XF:11BMB-BI{OnAxis-Cam:1}ROI4:MinY_RBV,XSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI4:SizeX_RBV,YSIZE=XF:11BMB-BI{OnAxis-Cam:1}ROI4:SizeY_RBV,PORT=OVER1,ADDR=3,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:5:,NAME=Cursor1,SHAPE=1,O=Over1:,XPOS=junk,                  YPOS=junk,                  XSIZE=junk,                   YSIZE=junk,                   PORT=OVER1,ADDR=4,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:6:,NAME=Cursor2,SHAPE=1,O=Over1:,XPOS=junk,                  YPOS=junk,                  XSIZE=junk,                   YSIZE=junk,                   PORT=OVER1,ADDR=5,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:7:,NAME=Box1,   SHAPE=1,O=Over1:,XPOS=junk,                  YPOS=junk,                  XSIZE=junk,                   YSIZE=junk,                   PORT=OVER1,ADDR=6,TIMEOUT=1")
+dbLoadRecords("NDOverlayN.template","P=XF:11BMB-BI{OnAxis-Cam:1},R=Over1:8:,NAME=Box2,   SHAPE=1,O=Over1:,XPOS=junk,                  YPOS=junk,                  XSIZE=junk,                   YSIZE=junk,                   PORT=OVER1,ADDR=7,TIMEOUT=1")
+# Create 2 color conversion plugins
+NDColorConvertConfigure("CC1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDColorConvert.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=CC1:,  PORT=CC1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}CC1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDColorConvert.template" line 7
+NDColorConvertConfigure("CC2", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDColorConvert.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=CC2:,  PORT=CC2,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}CC2:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDColorConvert.template" line 7
+# Create a circular buffer plugin
+NDCircularBuffConfigure("CB1", 20, 0, "CAM", 0, 500, 0)
+dbLoadRecords("NDCircularBuff.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=CB1:,  PORT=CB1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}CB1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDCircularBuff.template" line 11
+# Create an NDAttribute plugin with 8 attributes
+NDAttrConfigure("ATTR1", 20, 0, "CAM", 0, 8, 0, 0, 0)
+dbLoadRecords("NDAttribute.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:,    PORT=ATTR1,ADDR=0,TIMEOUT=1,NCHANS=2048,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Attr1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDAttribute.template" line 12
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:1:,  PORT=ATTR1,ADDR=0,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:2:,  PORT=ATTR1,ADDR=1,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:3:,  PORT=ATTR1,ADDR=2,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:4:,  PORT=ATTR1,ADDR=3,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:5:,  PORT=ATTR1,ADDR=4,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:6:,  PORT=ATTR1,ADDR=5,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:7:,  PORT=ATTR1,ADDR=6,TIMEOUT=1,NCHANS=2048")
+dbLoadRecords("NDAttributeN.template", "P=XF:11BMB-BI{OnAxis-Cam:1},R=Attr1:8:,  PORT=ATTR1,ADDR=7,TIMEOUT=1,NCHANS=2048")
+# Create an FFT plugin
+NDFFTConfigure("FFT1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDFFT.template", "P=XF:11BMB-BI{OnAxis-Cam:1}, R=FFT1:, PORT=FFT1, ADDR=0, TIMEOUT=1, NDARRAY_PORT=CAM, NAME=FFT1, NCHANS=1280")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}FFT1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDFFT.template" line 17
+# Create 2 Codec plugins
+NDCodecConfigure("CODEC1", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDCodec.template", "P=XF:11BMB-BI{OnAxis-Cam:1}, R=Codec1:, PORT=CODEC1, ADDR=0, TIMEOUT=1, NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Codec1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDCodec.template" line 7
+NDCodecConfigure("CODEC2", 20, 0, "CAM", 0, 0, 0, 0, 0, 5)
+dbLoadRecords("NDCodec.template", "P=XF:11BMB-BI{OnAxis-Cam:1}, R=Codec2:, PORT=CODEC2, ADDR=0, TIMEOUT=1, NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Codec2:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDCodec.template" line 7
+set_requestfile_path("./")
+set_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADCore/ADApp/Db")
+set_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADCore/iocBoot")
+set_savefile_path("./autosave")
+set_pass0_restoreFile("auto_settings.sav")
+set_pass1_restoreFile("auto_settings.sav")
+save_restoreSet_status_prefix("XF:11BMB-BI{OnAxis-Cam:1}")
+dbLoadRecords("/epics/prod/Deb7/R3-4/autosave/asApp/Db/save_restoreStatus.db", "P=XF:11BMB-BI{OnAxis-Cam:1}")
+# Optional: load NDPluginPva plugin
+NDPvaConfigure("PVA1", 20, 0, "CAM", 0, XF:11BMB-BI{OnAxis-Cam:1}Pva1:Image, 0, 0, 0)
+dbLoadRecords("NDPva.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Pva1:, PORT=PVA1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Pva1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPva.template" line 7
+# Must start PVA server if this is enabled
+startPVAServer
+2019-02-22T12:42:50.642 Using dynamically assigned TCP port 55422.
+# Optional: load ffmpegServer plugin
+#ffmpegServerConfigure(8081)
+#ffmpegStreamConfigure("FfmStream1", 2, 0, "$(PORT)", 0, -1, 0)
+#dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegStream.template", "P=$(PREFIX),R=ffmstream1:,PORT=FfmStream1,NDARRAY_PORT=$(PORT)")
+#ffmpegFileConfigure("FfmFile1", 16, 0, "$(PORT)", 0, -1, 0)
+#dbLoadRecords("$(FFMPEGSERVER)/db/ffmpegFile.template", "P=$(PREFIX),R=ffmfile1:,PORT=FfmFile1,NDARRAY_PORT=$(PORT)")
+# Optional: load NDPluginEdge plugin
+NDEdgeConfigure("EDGE1", 20, 0, "CAM", 0, 0, 0, 0)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADPluginEdge/db/NDEdge.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Edge1:, PORT=EDGE1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Edge1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADPluginEdge/db/NDEdge.template" line 5
+set_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADPluginEdge/edgeApp/Db")
+# Optional: load scan records
+#dbLoadRecords("$(SSCAN)/sscanApp/Db/scan.db", "P=$(PREFIX),MAXPTS1=2000,MAXPTS2=200,MAXPTS3=20,MAXPTS4=10,MAXPTSH=10")
+#set_requestfile_path("$(SSCAN)/sscanApp/Db")
+# Optional: load sseq record for acquisition sequence
+#dbLoadRecords("$(CALC)/calcApp/Db/sseqRecord.db", "P=$(PREFIX), S=AcquireSequence")
+#set_requestfile_path("$(CALC)/calcApp/Db")
+# Optional: load devIocStats records (requires DEVIOCSTATS module)
+dbLoadRecords("/epics/prod/Deb7/R3-4/iocStats/db/iocAdminSoft.db", "IOC=XF:11BMB-BI{OnAxis-Cam:1}")
+# Optional: load alive record (requires ALIVE module)
+#dbLoadRecords("$(ALIVE)/aliveApp/Db/alive.db", "P=$(PREFIX),RHOST=192.168.1.254")
+# The following was auto-inserted by installSynApps
+NDCVConfigure("CV1", 20, 0, "CAM", 0, 0, 0, 0)
+2019/02/22 12:42:50.647 NDPluginCV::assignInputs Finished assigning input values
+2019/02/22 12:42:50.647 NDPluginCV::assignOutputs Finished assigning output values
+2019/02/22 12:42:50.647 NDPluginCV::assignInputDescriptions Finished assigning input desc values
+2019/02/22 12:42:50.647 NDPluginCV::assignOutputDescriptions Finished assigning output desc values
+macLib: macro ADCOMPVISION is undefined (expanding string dbLoadRecords("$(ADCOMPVISION)/db/NDCV.template", "P=$(PREFIX), R=CV1:, PORT=CV1, ADDR=0, TIMEOUT=1, NDARRAY_PORT=$(PORT), NAME=CV1, NCHANS=$(XSIZE)"))
+macLib: macro ADCOMPVISION is undefined (expanding string set_requestfile_path("$(ADCOMPVISION)/adcvApp/Db"))
+NDBarConfigure("BAR1", 20, 0, "CAM", 0, 0, 0, 0)
+dbLoadRecords("/epics/prod/Deb7/R3-4/areaDetector/ADPluginBar/db/NDBar.template",  "P=XF:11BMB-BI{OnAxis-Cam:1},R=Bar1:, PORT=BAR1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=CAM")
+Can't set "XF:11BMB-BI{OnAxis-Cam:1}Bar1:MaxArrayRate_RBV.DTYP" to "Soft Channel" No digits to convert
+Error at or before ")" in path "/epics/prod/Deb7/R3-4/areaDetector/ADCore/db"  file "NDPluginBase.template" line 124
+ in file "/epics/prod/Deb7/R3-4/areaDetector/ADPluginBar/db/NDBar.template" line 7
+Record "XF:11BMB-BI{OnAxis-Cam:1}Bar1:CodeCorners" does not have a field "autosaveFields"
+Errorset_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADPluginBar/barApp/Db")
+# Auto-Inserted end
+set_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADProsilica/prosilicaApp/Db")
+set_requestfile_path("/epics/prod/Deb7/R3-4/areaDetector/ADProsilica/iocs/prosilicaIOC/iocBoot/iocProsilica")
+#system("install -m 777 -d $(TOP)/as/save")
+#system("install -m 777 -d $(TOP)/as/req")
+#access security
+#asSetFilename("/cf-update/acf/default.acf")
+#asynSetTraceMask("$(PORT)",0,255)
+#asynSetTraceMask("$(PORT)",0,9)
+asynSetTraceIOMask("CAM",0,4)
+iocInit()
+Starting iocInit
+############################################################################
+## EPICS R7.0.2
+## EPICS Base built Feb 14 2019
+############################################################################
+reboot_restore: entry for file 'auto_settings.sav'
+reboot_restore: Found filename 'auto_settings.sav' in restoreFileList.
+*** restoring from './autosave/auto_settings.sav' at initHookState 6 (before record/device init) ***
+reboot_restore: done with file 'auto_settings.sav'
+
+reboot_restore: entry for file 'auto_settings.sav'
+reboot_restore: Found filename 'auto_settings.sav' in restoreFileList.
+*** restoring from './autosave/auto_settings.sav' at initHookState 7 (after record/device init) ***
+reboot_restore: done with file 'auto_settings.sav'
+
+cas warning: Configured TCP port was unavailable.
+cas warning: Using dynamically assigned TCP port 39227,
+cas warning: but now two or more servers share the same UDP port.
+cas warning: Depending on your IP kernel this server may not be
+cas warning: reachable with UDP unicast (a host's IP in EPICS_CA_ADDR_LIST)
+iocRun: All initialization complete
+#must be after iocInit()
+# save things every thirty seconds
+create_monitor_set("auto_settings.req", 30,"P=XF:11BMB-BI{OnAxis-Cam:1}")
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+save_restore:readReqFile: unable to open file sseq_settings.req. Exiting.
+# Channel Finder
+dbl > ./records.dbl
+#system "cp ./records.dbl /cf-update/$(HOSTNAME).$(IOCNAME).dbl"
+# dbpf "$(PREFIX)cam1:GevSCPSPacketSiz", "8228"
+epics> auto_settings.sav: 1227 of 1227 PV's connected

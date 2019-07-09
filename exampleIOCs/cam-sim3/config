@@ -1,0 +1,4 @@
+NAME=cam-sim3
+PORT=4002
+USER=softioc
+HOST=localhost

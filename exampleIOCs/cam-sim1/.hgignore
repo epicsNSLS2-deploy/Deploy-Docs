@@ -1,0 +1,10 @@
+.git/
+.gitignore
+startupScripts/
+dependancyFiles/
+autosaveFiles/
+logs/
+autosave/
+records.dbl
+cleanup.sh
+cleanup.bat

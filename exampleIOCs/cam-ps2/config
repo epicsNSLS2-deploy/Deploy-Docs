@@ -1,0 +1,4 @@
+NAME=cam-ps2
+PORT=4005
+USER=softioc
+HOST=localhost

@@ -1,0 +1,7 @@
+.git/
+.gitignore
+startupScripts/
+dependencyScripts/
+logs/
+autosave/
+records.dbl

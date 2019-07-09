@@ -1,0 +1,4 @@
+NAME=cam-ps1
+PORT=4004
+USER=softioc
+HOST=localhost
