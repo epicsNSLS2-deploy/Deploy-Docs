@@ -750,9 +750,10 @@ if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires j
 <p>There are a series of steps required to create a new areaDetector binary bundle. </p>
 <h3 id="setting-up-dev-environment">Setting up dev. environment</h3>
 <p>Before you begin building any source code, you must first set up your development environment by installing all required dependencies. On linux, the simplest way to do so is via the package manager. For example, on a debian based system, run the following in the terminal:</p>
-<pre class="hljs">sudo apt install git wget <span class="hljs-keyword">python3</span> <span class="hljs-keyword">python3</span>-tk
-sudo apt install gcc g++ <span class="hljs-keyword">make</span> <span class="hljs-keyword">perl</span>
-sudo apt install tar</pre><p>In addition to these packages which are required for the building process, it is recommended to run the <a href="https://github.com/epicsNSLS2-deploy/installSynApps/blob/master/scripts/dependencyInstall.sh">dependencyInstall.sh</a> script prior to building in order to collect all remaining apt packages required by EPICS. The build program/scripts can also run it during the build process, but this will require you to enter your <code>sudo</code> passoword during execution, which limits the automation possibilities of the process. Note that not all of these packages are required for each detector driver or plugin, but it is simplest to install them all.</p>
+<pre class="hljs">sudo apt install git wget python3 python3-tk
+sudo apt install gcc g++ make perl
+sudo python3 -m pip install distro
+sudo apt install tar</pre><p>The distro python module is used for the installSynApps integrated packager, and if this feature is not required then the module is optional.</p><p>In addition to these packages which are required for the building process, it is recommended to run the <a href="https://github.com/epicsNSLS2-deploy/installSynApps/blob/master/scripts/dependencyInstall.sh">dependencyInstall.sh</a> script prior to building in order to collect all remaining apt packages required by EPICS. The build program/scripts can also run it during the build process, but this will require you to enter your <code>sudo</code> passoword during execution, which limits the automation possibilities of the process. Note that not all of these packages are required for each detector driver or plugin, but it is simplest to install them all.</p>
 <p>On windows, you may find most dependencies online:</p>
 <ul>
 <li><a href="https://git-scm.com/download">git + tar</a> - Make sure to select UNIX tools to get access to <code>tar</code></li>
@@ -784,10 +785,13 @@ set MAKEFLAGS=-w</pre><p>Keep in mind that the year will change depending on you
 <p><img src="images/installCLI.png" /></p>
 <p>At this point EPICS base, synApps, and areaDetector should be built on your local machine.</p>
 <h3 id="bundling">Bundling</h3>
-<p>In order to bundle the binaries required to run detector IOCs, we use another utility script, which can be found <a href="https://github.com/epicsNSLS2-deploy/ioc_deploy">here</a>. Clone this script with:</p>
-<pre class="hljs">git <span class="hljs-keyword">clone</span> <span class="hljs-title">https</span>://github.com/epicsNSLS2-deploy/ioc_deploy</pre><p>Next, enter the ioc_deploy directory, and open up the <code>deploy.sh</code> file in a text editor. At the top of the file will be defined some paths, which must be edited to match the compiled EPICS structure on your machine. Below this is a list of areaDetector and synApps modules to be packaged. Note that only non-required modules are listed, any dependency packages are included by default. Once these lists are organized to your specification, open the <code>nsls2ADprebuild.sh</code> script, and change the areaDetector release number. This will be written into the name of the output tarball.</p>
-<p>Finally, simply run </p>
-<pre class="hljs"><span class="hljs-keyword">bash </span>nsls2ADPrebuild.sh</pre><p>The release tarball will be placed into <code>ioc_deploy/DEPLOYMENTS</code>.</p>
+<p>As of version R2-1 of installSynApps, a packager has been built into the program. It uses the same install configuration to know which items to package, and the location of the compiled binaries. After you have run the build process, set which modules you would like to package in the Edit Install Config window, set the package output directory if you would like (defaults to ./DEPLOYMENTS), and then select 'Package'. The package should be outputted into the selected directory as a .tar.gz tarball.
+
+The installSynApps integrated packager requires the python module distro. It can be installed with:</p>
+<pre class="hljs">python3 -m pip install distro</pre><p></p>
+<p>If it is not installed, you will see an error message displayed:</p>
+<pre class="hljs">ERROR - Could not generate binary bundle, missing "distro" python module</pre>
+<p>For older versions of installSynApps, or without the integrated packager, or if you wish to have a dedicated packaging tool, you may use <a href='https://github.com/epicsNSLS2-deploy/ioc_deploy'>ioc_deploy</a>. Instructions on usage can be found in the README of that repository.</p>
 <h3 id="unpacking">Unpacking</h3>
 <p>Once you have a release tarball generated by the <code>ioc_deploy</code> script, simply copy it to its desired destination, and untar with</p>
 <pre class="hljs">tar -xvzf <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">TARBALL_NAME</span>.</span></span>tgz</pre><p>On windows, <a href="https://www.7-zip.org/download.html">7zip</a> can be used for untarring.</p>
@@ -826,10 +830,6 @@ git --<span class="hljs-keyword">version</span></pre><p>If the version number is
 <tr>
 <td>TOP_BINARY_DIR</td>
 <td>Location of unpacked binary tarball. You may point this to the locally unpacked binaries downloaded from the website, or the location of an nfs distribution. You may also point this to a set of locally compiled sources.</td>
-</tr>
-<tr>
-<td>BINARIES_FLAT</td>
-<td>Toggle that tells the script whether base and support are separated or if support modules are in the same directory as base (ex. base, asyn, areaDetector are in the same dir vs. base and support are in same dir and asyn, areaDetector are inside support). If using a prebuilt bundle, this will most likely need to be set to <code>YES</code>. If pointing at compiled sources, this should be set to <code>NO</code>. </td>
 </tr>
 <tr>
 <td>ENGINEER</td>
@@ -907,11 +907,12 @@ ADAndor3      cam-andor3     AD3            <span class="hljs-number">4002</span
 <p>Once all tweaks have been made, the IOC should be able to start with:</p>
 <pre class="hljs">./<span class="hljs-keyword">st</span>.cmd</pre><p>on Linux or simply</p>
 <pre class="hljs"><span class="hljs-keyword">st</span>.cmd</pre><p>on Windows.</p>
+<h3 id="initIOCOptions">initIOC Options</h3>
+<p>You may also run initIOCs with the `-i` option for a guided command line setup, or `-g` for a GUI version.</p>
 <h3 id="dependancies">Dependancies</h3>
 <p>Depending on their contents, it is possible that there are additional external dependencies required to run IOCs from the binary distributions (Generally only on Linux). To fix a missing library error, you may simply run  the <code>dependencyInstall.sh</code> script from the IOC server. This script is available on the binary NFS at <code>/ad-nfs/epics/prod/dependencyInstall.sh</code></p>
 <p>If you run into an error along the lines of </p>
-<pre class="hljs">libflycapture.so was <span class="hljs-keyword">not</span> <span class="hljs-built_in">found</span></pre><p>when attempting to run the IOC, start by running the dependency script as described above. If the error persists, it is most likely that the vendor library SDK needs to be placed into the system library path. These libraries are also located on the NFS server in <code>/ad-nfs/epics/prod/$OS/$VERSION/areaDetector/$DRIVER/lib/linux-x86_64</code>, with $OS representing the Debian version, VERSION representing the binary bundle version, and DRIVER representing the IOC type, ex. <code>ADProsilica</code>. Once you locate the missing file, you must add its location to the library search path. To do this, you may either set the <code>LD_LIBRARY_PATH</code> environment variable to the location of the missing file:</p>
-<pre class="hljs"><span class="hljs-builtin-name">export</span> <span class="hljs-attribute">LD_LIBRARY_PATH</span>=<span class="hljs-variable">$PATH_TO_MISSING_FILE</span>:$LD_LIBRARY_PATH</pre><p>Alternatively - the recommended solution is to copy the missing vendor libraries into a location on the local machine - typically /usr/local/lib, and adding that location to the <code>/etc/ld.so.conf.d/</code> directory. Create a file with:</p>
+<pre class="hljs">libflycapture.so was <span class="hljs-keyword">not</span> <span class="hljs-built_in">found</span></pre><p>when attempting to run the IOC, start by running the dependency script as described above. If the error persists, it is most likely that the vendor library SDK needs to be placed into the system library path. initIOC should have generated either a dllPath.bat or a ldpath.sh script in the IOC directory. Run this script before starting the IOC to include the path to these vendor libraries. These libraries are also located on the NFS server in <code>/ad-nfs/epics/prod/$OS/$VERSION/areaDetector/$DRIVER/lib/linux-x86_64</code>, with $OS representing the Debian version, VERSION representing the binary bundle version, and DRIVER representing the IOC type, ex. <code>ADProsilica</code>. <p>Alternatively - another solution is to copy the missing vendor libraries into a location on the local machine - typically /usr/local/lib, and adding that location to the <code>/etc/ld.so.conf.d/</code> directory. Create a file with:</p>
 <pre class="hljs">sudo touch /etc/ld<span class="hljs-selector-class">.so</span><span class="hljs-selector-class">.conf</span><span class="hljs-selector-class">.d</span>/ioc.conf</pre><p>open the file with whichever editor you prefer and type in the location of the copied vendor libraries. Then run</p>
 <pre class="hljs"><span class="hljs-attribute">sudo ldconfig</span></pre><p>to refresh the library path. Note that the <code>/usr/local/lib</code> location is generally already added in the <code>libc.conf</code> file. At this point your IOC should be able to find the missing binaries.</p>
 <h3 id="updating-existing-iocs-to-the-new-binary-distribution-format">Updating existing IOCs to the new binary distribution format</h3>
@@ -992,19 +993,7 @@ CONFIGURE  initIOCs.py  README.md</pre><h3 id="step-3-edit-configure">Step 3 - E
 <pre class="hljs"><span class="hljs-comment"># Top Level IOC directory (Where all your IOCs will be located)</span>
 <span class="hljs-attr">IOC_DIR</span>=/epics/iocs</pre><p>Next, I set the <code>TOP_BINARY_DIR</code> variable to the location of my previously unpacked binaries:</p>
 <pre class="hljs"><span class="hljs-comment"># Top Level dir containing compiled binaries.</span>
-<span class="hljs-attr">TOP_BINARY_DIR</span>=/ad-nfs/epics/prod/Ubuntu18
-
-<span class="hljs-comment"># If base and support are in different directories, set to NO, otherwise YES</span>
-<span class="hljs-attr">BINARIES_FLAT</span>=<span class="hljs-literal">YES</span></pre><p>Note that I also set <code>BINARIES_FLAT</code> to <code>YES</code>. This is because the unpacked binary had the structure</p>
-<pre class="hljs">-<span class="hljs-string">|</span>
- <span class="hljs-string">| - base</span>
- <span class="hljs-string">| - areaDetector</span>
- <span class="hljs-string">| - asyn</span></pre><p>and not</p>
-<pre class="hljs">-<span class="hljs-string">|</span>
- <span class="hljs-string">| - base</span>
- <span class="hljs-string">| - support</span>
-       <span class="hljs-string">| - areaDetector</span>
-       <span class="hljs-string">| - asyn</span></pre><p>If the compiled binary location uses the latter structure it is important to set <code>BIANRIES_FLAT</code> to <code>NO</code>.</p>
+<span class="hljs-attr">TOP_BINARY_DIR</span>=/ad-nfs/epics/prod/Ubuntu18</pre>
 <p>Next, I set the <code>PREFIX</code> Variable to XF:10IDC-BI. Note that I did not include the second portion of the prefix in the brackets - this is autopopulated by the script to ensure each camera gets a unique prefix.</p>
 <pre class="hljs"><span class="hljs-comment"># All Camera PVs will be $Prefix{$(IOC Type)-Cam:#}</span>
 <span class="hljs-comment"># Ex: XF:10IDC-BI{UVC-Cam:2}</span>
@@ -1172,6 +1161,16 @@ epicsEnvSet(<span class="hljs-string">"IOC"</span>, <span class="hljs-string">"i
 .
 auto_settings.sav: <span class="hljs-number">1274</span> <span class="hljs-keyword">of</span> <span class="hljs-number">1274</span> PV<span class="hljs-string">'s connected
 epics &gt;</span></pre><p>Looks like it worked!</p>
+<h3 id="guided-usage">Guided Usage</h3>
+<p>If you would like to have a guided usage for initIOCs, simply run the following:</p>
+<pre class="hljs">./initIOCs.py -i</pre>
+<p>This will prompt you to enter all required information, and thus does not require the CONFIGURE file.</p>
+
+<h3 id="using-the-gui">Using the GUI</h3>
+<p>When using the GUI version of initIOC, make sure you have tkinter installed for python3, then run:</p>
+<pre class="hljs">./initIOCs.py -g</pre>
+<p>This will open a tkinter window with fields to enter all necessary options. Simply fill them out as you would the CONFIGURE file, and select RUN.</p>
+
 <h3 id="conclusion-some-notes-and-further-resources">Conclusion - Some notes and further resources</h3>
 <p><code>initIOC</code> is meant to accelerate new IOC deployment at NSLS2 beamlines. Though it is designed to be used with the new areaDetector binary bundle distribution, it can be used to rapidly prototype IOCs for any compiled location of epics base.</p>
 <p>If you wish to report an issue with initIOC, please create a ticket on the <a href="https://github.com/epicsNSLS2-deploy/initIOC/issues">issues page</a>. When creating a ticket, please specify whether it is an issue with running the script or with running the IOC after the script has completed. If requesting a new Driver to be supported, please label the ticket as such and describe which driver is required.</p>
